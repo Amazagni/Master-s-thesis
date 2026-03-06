@@ -1,12 +1,11 @@
 from generators.shapes import ShapeGenerator
-from utils.visualization import save_image
+from utils.visualization import *
 from noise.salt_pepper import add_salt_and_pepper_noise
 from noise.gaussian import add_gaussian_noise
 from noise.blur import add_blur
 from noise.morfology import *
+from components.labeling import *
 from noise.geometric_transformations import *
-# from noise.geometric_transformations import rotate_image
-# from noise.geometric_transformations import translate_image
 
 gen = ShapeGenerator(seed=42)
 
@@ -50,7 +49,20 @@ for shape_name, shape_func in shape_generators.items():
     img, meta = shape_func()
 
     save_image(img, f"results/images/{shape_name}_clean.png")
+    
+    # labels4, n4, _components4 = connected_components(img, connectivity=4) # TODO ma sens tylko jesli mam dwa obiekty...
+    # labels8, n8, _components8 = connected_components(img, connectivity=8)
+    
+    # save_labels(
+    #     labels4,
+    #     f"results/images/{shape_name}_labels4.png"
+    # )
 
+    # save_labels(
+    #     labels8,
+    #     f"results/images/{shape_name}_labels8.png"
+    # )
+    
     for noise_name, noise_func in noise_functions.items():
 
         noisy_img = noise_func(img)
@@ -59,5 +71,20 @@ for shape_name, shape_func in shape_generators.items():
             noisy_img,
             f"results/images/{shape_name}_{noise_name}.png"
         )
+        
+        labels4_noisy, n4_noisy, _components4 = connected_components(noisy_img, connectivity=4)
+        labels8_noisy, n8_noisy, _components8 = connected_components(noisy_img, connectivity=8)
+        
+        save_labels(
+            labels4_noisy,
+            f"results/images/{shape_name}_{noise_name}_labels4_noisy.png"
+        )
+
+        save_labels(
+            labels8_noisy,
+            f"results/images/{shape_name}_{noise_name}_labels8_noisy.png"
+        )
+        if (n4_noisy != 1 or n8_noisy):
+            print(f"Wiecej niz jedna figura: {shape_name}_{noise_name}")
 
 print("Zapisano wszystkie obrazy.")

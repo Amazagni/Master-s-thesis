@@ -58,3 +58,38 @@ def overlay_contour(image, contour_points):
 
     plt.axis("off")
     plt.show()
+    
+    
+def show_labels(labels, title=None):
+    """
+    Wizualizacja macierzy etykiet komponentów
+    """
+
+    plt.figure(figsize=(5, 5))
+    plt.imshow(labels, cmap="nipy_spectral")
+    plt.axis("off")
+
+    if title:
+        plt.title(title)
+
+    plt.colorbar()
+    plt.show()
+    
+def save_labels(labels, path, title=None):
+    """
+    Zapis wizualizacji komponentów do pliku
+    """
+
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+
+    plt.figure(figsize=(5, 5))
+    plt.imshow(labels, cmap="nipy_spectral")
+    plt.axis("off")
+
+    if title:
+        plt.title(title)
+
+    plt.colorbar()
+
+    plt.savefig(path, bbox_inches="tight", dpi=300)
+    plt.close()
