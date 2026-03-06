@@ -1,14 +1,40 @@
 from generators.shapes import ShapeGenerator
 from utils.visualization import save_image
+from noise.salt_pepper import add_salt_and_pepper_noise
+from noise.gaussian import add_gaussian_noise
+from noise.blur import add_blur
+from noise.morfology import *
 
 gen = ShapeGenerator(seed=42)
 
-img, meta = gen.generate_circle()
+shape_generators = {
+    "circle": gen.generate_circle,
+    "rectangle": gen.generate_rectangle,
+    "triangle": gen.generate_triangle,
+    "ring": gen.generate_ring,
+}
 
-save_image(
-    img,
-    "results/images/circle_test.png",
-    title="Circle"
-)
+noise_functions = {
+    "salt_pepper": lambda img: add_salt_and_pepper_noise(img, 0.20, 42),
+    "gaussian": lambda img: add_gaussian_noise(img, 0.30, 42),
+    "blur": lambda img: add_blur(img),
+    "erode": lambda img: erode(img),
+    "dilate": lambda img: dilate(img),
+}
 
-print("Zapisano obraz.")
+for shape_name, shape_func in shape_generators.items():
+
+    img, meta = shape_func()
+
+    save_image(img, f"results/images/{shape_name}_clean.png")
+
+    for noise_name, noise_func in noise_functions.items():
+
+        noisy_img = noise_func(img)
+
+        save_image(
+            noisy_img,
+            f"results/images/{shape_name}_{noise_name}.png"
+        )
+
+print("Zapisano wszystkie obrazy.")
