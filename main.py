@@ -7,6 +7,7 @@ from noise.morfology import *
 from components.labeling import *
 from noise.geometric_transformations import *
 from algorithms.contour_extraction import *
+from algorithms.image_moments import *
 
 gen = ShapeGenerator(seed=42)
 
@@ -54,6 +55,17 @@ for shape_name, shape_func in shape_generators.items():
 
     save_image(contour, f"results/images/{shape_name}_contour.png")
     
+    mom = raw_moments(img)
+    cx, cy = centroid(mom)
+    mu = central_moments(img, cx, cy)
+    eta = normalized_central_moments(mu, mom["M00"])
+    hu = hu_moments(eta)
+    
+    print(shape_name)
+    print("Area:", mom["M00"])
+    print("Centroid:", cx, cy)
+    print("Hu moments:", hu)
+    
     # labels4, n4, _components4 = connected_components(img, connectivity=4) # TODO ma sens tylko jesli mam dwa obiekty...
     # labels8, n8, _components8 = connected_components(img, connectivity=8)
     
@@ -88,7 +100,7 @@ for shape_name, shape_func in shape_generators.items():
             labels8_noisy,
             f"results/images/{shape_name}_{noise_name}_labels8_noisy.png"
         )
-        if (n4_noisy != 1 or n8_noisy):
-            print(f"Wiecej niz jedna figura: {shape_name}_{noise_name}")
+        # if (n4_noisy != 1 or n8_noisy):
+        #     print(f"Wiecej niz jedna figura: {shape_name}_{noise_name}")
 
 print("Zapisano wszystkie obrazy.")
