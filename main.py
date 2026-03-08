@@ -6,6 +6,7 @@ from noise.blur import add_blur
 from noise.morfology import *
 from components.labeling import *
 from noise.geometric_transformations import *
+from algorithms.contour_extraction import *
 
 gen = ShapeGenerator(seed=42)
 
@@ -49,6 +50,9 @@ for shape_name, shape_func in shape_generators.items():
     img, meta = shape_func()
 
     save_image(img, f"results/images/{shape_name}_clean.png")
+    contour = extract_contour(img)
+
+    save_image(contour, f"results/images/{shape_name}_contour.png")
     
     # labels4, n4, _components4 = connected_components(img, connectivity=4) # TODO ma sens tylko jesli mam dwa obiekty...
     # labels8, n8, _components8 = connected_components(img, connectivity=8)
