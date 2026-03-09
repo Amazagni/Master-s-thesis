@@ -107,3 +107,16 @@ def hu_moments(eta):
         "hu2": hu2,
         "hu3": hu3
     }
+    
+def log_transform(hu): # todo podobno potrzebne, sprawdzic co to
+
+    transformed = {}
+
+    for k, v in hu.items():
+
+        if v == 0:
+            transformed[k] = 0
+        else:
+            transformed[k] = -np.sign(v) * np.log10(abs(v))
+
+    return transformed

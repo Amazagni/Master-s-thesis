@@ -7,7 +7,7 @@ from noise.morfology import *
 from components.labeling import *
 from noise.geometric_transformations import *
 from algorithms.contour_extraction import *
-from algorithms.image_moments import *
+from algorithms.shape_descriptors import *
 
 gen = ShapeGenerator(seed=42)
 
