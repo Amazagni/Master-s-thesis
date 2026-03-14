@@ -8,6 +8,8 @@ from components.labeling import *
 from noise.geometric_transformations import *
 from algorithms.contour_extraction import *
 from algorithms.shape_descriptors import *
+from algorithms.image_moments import *
+from utils.results_writer import *
 
 gen = ShapeGenerator(seed=42)
 
@@ -46,25 +48,65 @@ noise_functions = {
     "translate_big": lambda img: translate_image(img, 40, 30),
 }
 
+csv_path = "results/descriptors.csv"
+
+init_csv(csv_path)
+
 for shape_name, shape_func in shape_generators.items():
 
     img, meta = shape_func()
 
-    save_image(img, f"results/images/{shape_name}_clean.png")
+    # save_image(img, f"results/images/{shape_name}_clean.png")
     contour = extract_contour(img)
+    A = area(img)
+    P = perimeter(contour)
 
-    save_image(contour, f"results/images/{shape_name}_contour.png")
+    bbox = bounding_box(img)
+
+    ratio = aspect_ratio(bbox["width"], bbox["height"])
+    circ = circularity(A, P)
+    comp = compactness(A, P)
+
+    # save_image(contour, f"results/images/{shape_name}_contour.png")
     
     mom = raw_moments(img)
     cx, cy = centroid(mom)
     mu = central_moments(img, cx, cy)
     eta = normalized_central_moments(mu, mom["M00"])
     hu = hu_moments(eta)
+    theta = orientation(
+    mu["mu20"],
+    mu["mu02"],
+    mu["mu11"]
+    )
+
+    ecc = eccentricity(
+        mu["mu20"],
+        mu["mu02"],
+        mu["mu11"]
+    )
     
     print(shape_name)
     print("Area:", mom["M00"])
     print("Centroid:", cx, cy)
     print("Hu moments:", hu)
+    print("Orientation:", theta)
+    print("Eccentricity:", ecc)
+    
+    append_result(
+    csv_path,
+    [
+        shape_name,
+        "clean",
+        A,
+        P,
+        ratio,
+        circ,
+        comp,
+        ecc,
+        theta
+    ]
+)
     
     # labels4, n4, _components4 = connected_components(img, connectivity=4) # TODO ma sens tylko jesli mam dwa obiekty...
     # labels8, n8, _components8 = connected_components(img, connectivity=8)
@@ -83,24 +125,68 @@ for shape_name, shape_func in shape_generators.items():
 
         noisy_img = noise_func(img)
 
-        save_image(
-            noisy_img,
-            f"results/images/{shape_name}_{noise_name}.png"
+        # save_image(
+        #     noisy_img,
+        #     f"results/images/{shape_name}_{noise_name}.png"
+        # )
+        
+        contour = extract_contour(noisy_img)
+
+        mom = raw_moments(noisy_img)
+        cx, cy = centroid(mom)
+
+        if cx is None:
+            continue
+
+        mu = central_moments(noisy_img, cx, cy)
+
+        theta = orientation(
+            mu["mu20"],
+            mu["mu02"],
+            mu["mu11"]
         )
+
+        ecc = eccentricity(
+            mu["mu20"],
+            mu["mu02"],
+            mu["mu11"]
+        )
+
+        A = area(noisy_img)
+        P = perimeter(contour)
+
+        bbox = bounding_box(noisy_img)
+
+        ratio = aspect_ratio(bbox["width"], bbox["height"])
+        circ = circularity(A, P)
+        comp = compactness(A, P)
         
         labels4_noisy, n4_noisy, _components4 = connected_components(noisy_img, connectivity=4)
         labels8_noisy, n8_noisy, _components8 = connected_components(noisy_img, connectivity=8)
-        
-        save_labels(
-            labels4_noisy,
-            f"results/images/{shape_name}_{noise_name}_labels4_noisy.png"
+        append_result(
+            csv_path,
+            [
+                shape_name,
+                noise_name,
+                A,
+                P,
+                ratio,
+                circ,
+                comp,
+                ecc,
+                theta
+            ]
         )
+        # save_labels(
+        #     labels4_noisy,
+        #     f"results/images/{shape_name}_{noise_name}_labels4_noisy.png"
+        # )
 
-        save_labels(
-            labels8_noisy,
-            f"results/images/{shape_name}_{noise_name}_labels8_noisy.png"
-        )
+        # save_labels(
+        #     labels8_noisy,
+        #     f"results/images/{shape_name}_{noise_name}_labels8_noisy.png"
+        # )
         # if (n4_noisy != 1 or n8_noisy):
         #     print(f"Wiecej niz jedna figura: {shape_name}_{noise_name}")
 
-print("Zapisano wszystkie obrazy.")
+print("Zapisano wszystkie obrazy.")  # TODO dodac repetition
