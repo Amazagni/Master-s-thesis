@@ -81,3 +81,28 @@ def connected_components(binary_image: np.ndarray, connectivity: int = 4):
     num_components = current_label - 1
 
     return labels, num_components, components
+
+from components.labeling import connected_components
+
+
+def keep_largest_component(binary_image):
+
+    labels, num, components = connected_components(binary_image, connectivity=8)
+
+    if num == 0:
+        return binary_image
+
+    max_label = None
+    max_size = 0
+
+    for label, pixels in components.items():
+        if len(pixels) > max_size:
+            max_size = len(pixels)
+            max_label = label
+
+    result = np.zeros_like(binary_image)
+
+    for (y, x) in components[max_label]:
+        result[y, x] = 1
+
+    return result

@@ -20,6 +20,13 @@ shape_generators = {
     "ring": gen.generate_ring,
 }
 
+real_images = {
+    "building": "data/real/building_binary.png",
+    "building_otsu": "data/real/building_binary_otsu.png",
+
+    "face": "data/real/face_binary.png",
+    "face_otsu": "data/real/face_binary_otsu.png",
+}
 
 noise_functions = {
 
@@ -51,6 +58,10 @@ noise_functions = {
 csv_path = "results/descriptors.csv"
 
 init_csv(csv_path)
+
+# for image_name, path in real_images.items(): TODO sprawdzic czy to dziala
+
+#     img = load_imagege(path)
 
 for shape_name, shape_func in shape_generators.items():
 
