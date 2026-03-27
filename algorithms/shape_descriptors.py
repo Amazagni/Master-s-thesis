@@ -107,3 +107,37 @@ def eccentricity(mu20, mu02, mu11):
     ecc = np.sqrt(1 - (lambda2 / lambda1))
 
     return float(ecc)
+
+def feret_diameter(contour):
+    """
+    Maksymalna odległość między punktami konturu
+    """
+
+    ys, xs = np.nonzero(contour)
+
+    points = np.column_stack((xs, ys))
+
+    max_dist = 0.0
+
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+
+            dx = points[i][0] - points[j][0]
+            dy = points[i][1] - points[j][1]
+
+            dist = dx * dx + dy * dy
+
+            if dist > max_dist:
+                max_dist = dist
+
+    return float(np.sqrt(max_dist))
+            
+def malinowska(area, perimeter):
+    """
+    Współczynnik Malinowskiej (0 = koło)
+    """
+
+    if area == 0:
+        return 0
+
+    return (perimeter / (2 * np.sqrt(np.pi * area))) - 1

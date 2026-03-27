@@ -61,6 +61,10 @@ for shape_name, shape_func in shape_generators.items():
     A = area(img)
     P = perimeter(contour)
 
+        
+    feret = feret_diameter(contour)
+    mal = malinowska(A, P)
+    
     bbox = bounding_box(img)
 
     ratio = aspect_ratio(bbox["width"], bbox["height"])
@@ -104,7 +108,9 @@ for shape_name, shape_func in shape_generators.items():
         circ,
         comp,
         ecc,
-        theta
+        theta,
+        feret,
+        mal
     ]
 )
     
@@ -154,6 +160,9 @@ for shape_name, shape_func in shape_generators.items():
 
         A = area(noisy_img)
         P = perimeter(contour)
+        
+        feret = feret_diameter(contour)
+        mal = malinowska(A, P)
 
         bbox = bounding_box(noisy_img)
 
@@ -174,7 +183,9 @@ for shape_name, shape_func in shape_generators.items():
                 circ,
                 comp,
                 ecc,
-                theta
+                theta,
+                feret,
+                mal
             ]
         )
         # save_labels(
