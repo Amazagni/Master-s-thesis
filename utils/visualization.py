@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
+
 
 import os
 
@@ -16,6 +18,17 @@ def save_image(image, path, title=None):
 
     plt.savefig(path, bbox_inches="tight", dpi=300)
     plt.close()
+    
+def save_binary_image_raw(image, path):
+    """
+    zapisuje dokładnie 256x256 bez skalowania
+    """
+
+    img = (image * 255).astype(np.uint8)
+
+    im = Image.fromarray(img)
+
+    im.save(path)
 
 def show_image(image, title=None):
     plt.figure(figsize=(5, 5))

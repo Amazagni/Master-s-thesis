@@ -10,6 +10,7 @@ from algorithms.contour_extraction import *
 from algorithms.shape_descriptors import *
 from algorithms.image_moments import *
 from utils.results_writer import *
+from utils.image_loader import *
 
 gen = ShapeGenerator(seed=42)
 
@@ -59,18 +60,22 @@ csv_path = "results/descriptors.csv"
 
 init_csv(csv_path)
 
-# for image_name, path in real_images.items(): TODO sprawdzic czy to dziala
+for shape_name, path in real_images.items():# TODO sprawdzic czy to dziala
 
-#     img = load_imagege(path)
+    img = load_image(path)
+    img = to_binary(img)
 
-for shape_name, shape_func in shape_generators.items():
+# for shape_name, shape_func in shape_generators.items():
 
-    img, meta = shape_func()
+#     img, meta = shape_func()
 
     # save_image(img, f"results/images/{shape_name}_clean.png")
     contour = extract_contour(img)
     A = area(img)
     P = perimeter(contour)
+    print(np.max(img))  # TODO dodac repetition
+    print(img.shape)  # TODO dodac repetition
+    print(A)  # TODO dodac repetition
 
         
     feret = feret_diameter(contour)
