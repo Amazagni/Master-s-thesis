@@ -3,8 +3,6 @@ import numpy as np
 def erode(image: np.ndarray):    
     """
     image: obraz binarny (0/1)
-    sigma: odchylenie standardowe szumu (im wieksze tym dalej lądujemy)
-    seed: dla powtarzalności
     """
     padded = np.pad(image, 1, mode="constant")
 
@@ -20,8 +18,6 @@ def erode(image: np.ndarray):
 def dilate(image: np.ndarray):
     """
     image: obraz binarny (0/1)
-    sigma: odchylenie standardowe szumu (im wieksze tym dalej lądujemy)
-    seed: dla powtarzalności
     """
     padded = np.pad(image, 1, mode="constant")
 

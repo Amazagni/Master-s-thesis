@@ -70,7 +70,7 @@ def compactness(area, perimeter):
     if area == 0:
         return 0
 
-    return (perimeter ** 2) / (4 * np.pi * area)
+    return (perimeter ** 2) /  area
 
 
 def orientation(mu20, mu02, mu11):
