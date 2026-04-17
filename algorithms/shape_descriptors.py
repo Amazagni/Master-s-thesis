@@ -88,23 +88,29 @@ def orientation(mu20, mu02, mu11):
 
 def eccentricity(mu20, mu02, mu11):
     """
-    Wydłużenie obiektu (0 = koło, 1 = linia)
+    Ekscentryczność wg definicji momentowej:
+    Ecc = a1 / a2
+
+    zakres:
+    - 1 → koło
+    - >1 → obiekt wydłużony
     """
 
-    cov = np.array([
-        [mu20, mu11],
-        [mu11, mu02]
-    ])
+    # składniki pomocnicze
+    common = mu20 + mu02
+    diff = mu20 - mu02
 
-    eigenvalues = np.linalg.eigvals(cov)
+    sqrt_term = np.sqrt(diff**2 + 4 * (mu11**2))
 
-    lambda1 = max(eigenvalues)
-    lambda2 = min(eigenvalues)
+    # a1 >= a2
+    a1 = common + sqrt_term
+    a2 = common - sqrt_term
 
-    if lambda1 == 0:
-        return 0
+    # zabezpieczenie
+    if a2 == 0:
+        return float("inf")
 
-    ecc = np.sqrt(1 - (lambda2 / lambda1))
+    ecc = a1 / a2
 
     return float(ecc)
 
