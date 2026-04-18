@@ -19,9 +19,24 @@ def init_csv(path):
             "circularity",
             "compactness",
             "eccentricity",
-            "orientation"
+            "orientation",
+            "feret",
+            "malinowska",
+            "zwykly11",
+            "centralny11",
+            "znormalizowany11"
         ])
-
+        # shape_name,
+        # "clean",
+        # A,
+        # P,
+        # ratio,
+        # circ,
+        # comp,
+        # ecc,
+        # theta,
+        # feret,
+        # mal
 
 def append_result(path, row):
 

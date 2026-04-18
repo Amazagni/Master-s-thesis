@@ -60,17 +60,18 @@ csv_path = "results/descriptors.csv"
 
 init_csv(csv_path)
 
-for shape_name, path in real_images.items():# TODO sprawdzic czy to dziala
+# for shape_name, path in real_images.items():# TODO sprawdzic czy to dziala
 
-    img = load_image(path)
-    img = to_binary(img)
+#     img = load_image(path)
+#     img = to_binary(img)
 
-# for shape_name, shape_func in shape_generators.items():
+for shape_name, shape_func in shape_generators.items():
 
-#     img, meta = shape_func()
+    img, meta = shape_func()
 
-    # save_image(img, f"results/images/{shape_name}_clean.png")
+    save_image(img, f"results/images/{shape_name}_clean.png")
     contour = extract_contour(img)
+    save_image(contour, f"results/images/{shape_name}_contour.png")
     A = area(img)
     P = perimeter(contour)
     print(np.max(img))  # TODO dodac repetition
@@ -99,6 +100,18 @@ for shape_name, path in real_images.items():# TODO sprawdzic czy to dziala
     mu["mu02"],
     mu["mu11"]
     )
+    
+    
+    save_equivalent_ellipse(
+    img,
+    cx,
+    cy,
+    mu["mu20"],
+    mu["mu02"],
+    mu["mu11"],
+    f"results/images/{shape_name}_ellipse.png",
+    title="Equivalent ellipse"
+    )
 
     ecc = eccentricity(
         mu["mu20"],
@@ -126,17 +139,20 @@ for shape_name, path in real_images.items():# TODO sprawdzic czy to dziala
         ecc,
         theta,
         feret,
-        mal
+        mal,
+        mom["M11"],
+        mu["mu11"],
+        eta["eta11"],
     ]
 )
     
-    # labels4, n4, _components4 = connected_components(img, connectivity=4) # TODO ma sens tylko jesli mam dwa obiekty...
+    labels4, n4, _components4 = connected_components(img, connectivity=4) # TODO ma sens tylko jesli mam dwa obiekty...
     # labels8, n8, _components8 = connected_components(img, connectivity=8)
     
-    # save_labels(
-    #     labels4,
-    #     f"results/images/{shape_name}_labels4.png"
-    # )
+    save_labels(
+        labels4,
+        f"results/images/{shape_name}_labels4.png"
+    )
 
     # save_labels(
     #     labels8,
@@ -147,10 +163,10 @@ for shape_name, path in real_images.items():# TODO sprawdzic czy to dziala
 
         noisy_img = noise_func(img)
 
-        # save_image(
-        #     noisy_img,
-        #     f"results/images/{shape_name}_{noise_name}.png"
-        # )
+        save_image(
+            noisy_img,
+            f"results/images/{shape_name}_{noise_name}.png"
+        )
         
         contour = extract_contour(noisy_img)
 
@@ -161,6 +177,8 @@ for shape_name, path in real_images.items():# TODO sprawdzic czy to dziala
             continue
 
         mu = central_moments(noisy_img, cx, cy)
+        
+        eta = normalized_central_moments(mu, mom["M00"])
 
         theta = orientation(
             mu["mu20"],
@@ -201,13 +219,16 @@ for shape_name, path in real_images.items():# TODO sprawdzic czy to dziala
                 ecc,
                 theta,
                 feret,
-                mal
+                mal,
+                mom["M11"],
+                mu["mu11"],
+                eta["eta11"],
             ]
         )
-        # save_labels(
-        #     labels4_noisy,
-        #     f"results/images/{shape_name}_{noise_name}_labels4_noisy.png"
-        # )
+        save_labels(
+            labels4_noisy,
+            f"results/images/{shape_name}_{noise_name}_labels4_noisy.png"
+        )
 
         # save_labels(
         #     labels8_noisy,

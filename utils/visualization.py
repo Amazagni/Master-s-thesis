@@ -103,6 +103,117 @@ def save_labels(labels, path, title=None):
         plt.title(title)
 
     plt.colorbar()
+    
+    plt.savefig(path, bbox_inches="tight", dpi=300)
+    plt.close()
+    
+# def save_labels(labels, path, title=None):
+#     os.makedirs(os.path.dirname(path), exist_ok=True)
+
+#     plt.figure(figsize=(5, 5))
+
+#     n_labels = labels.max() + 1
+#     cmap = plt.cm.get_cmap("nipy_spectral", n_labels)
+
+#     im = plt.imshow(labels, cmap=cmap, vmin=0, vmax=n_labels - 1)
+#     plt.axis("off")
+
+#     if title:
+#         plt.title(title)
+
+#     cbar = plt.colorbar(im, ticks=np.arange(n_labels))
+#     cbar.ax.tick_params(labelsize=6)  # mniejsze liczby
+
+#     plt.savefig(path, bbox_inches="tight", dpi=300)
+#     plt.close()
+
+def save_equivalent_ellipse(
+    image,
+    cx,
+    cy,
+    mu20,
+    mu02,
+    mu11,
+    path,
+    scale=2,
+    title=None
+):
+    """
+    Zapisuje obraz z nałożoną elipsą aproksymującą + osiami
+    """
+
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+
+    # --- macierz kowariancji ---
+    cov = np.array([
+        [mu20, mu11],
+        [mu11, mu02]
+    ])
+
+    # --- wartości własne i wektory ---
+    eigenvalues, eigenvectors = np.linalg.eig(cov)
+
+    # sortowanie malejąco
+    order = np.argsort(eigenvalues)[::-1]
+    eigenvalues = eigenvalues[order]
+    eigenvectors = eigenvectors[:, order]
+
+    lambda1, lambda2 = eigenvalues
+
+    area = np.sum(image)
+    if area == 0:
+        return
+
+    # --- długości osi ---
+    r1 = scale * np.sqrt(lambda1 / area)
+    r2 = scale * np.sqrt(lambda2 / area)
+
+    # --- parametry elipsy ---
+    t = np.linspace(0, 2*np.pi, 200)
+
+    ellipse = np.array([
+        r1 * np.cos(t),
+        r2 * np.sin(t)
+    ])
+
+    ellipse_rot = eigenvectors @ ellipse
+
+    x_ellipse = ellipse_rot[0, :] + cx
+    y_ellipse = ellipse_rot[1, :] + cy
+
+    # --- rysowanie ---
+    plt.figure(figsize=(5, 5))
+    plt.imshow(image, cmap="gray", vmin=0, vmax=1)
+
+    # elipsa
+    plt.plot(x_ellipse, y_ellipse, linewidth=2)
+
+    # --- osie ---
+    v1 = eigenvectors[:, 0]
+    v2 = eigenvectors[:, 1]
+
+    axis1 = v1 * r1
+    axis2 = v2 * r2
+
+    plt.plot(
+        [cx - axis1[0], cx + axis1[0]],
+        [cy - axis1[1], cy + axis1[1]],
+        linewidth=2
+    )
+
+    plt.plot(
+        [cx - axis2[0], cx + axis2[0]],
+        [cy - axis2[1], cy + axis2[1]],
+        linewidth=2
+    )
+
+    # centroid
+    plt.scatter(cx, cy)
+
+    plt.axis("off")
+
+    if title:
+        plt.title(title)
 
     plt.savefig(path, bbox_inches="tight", dpi=300)
     plt.close()
