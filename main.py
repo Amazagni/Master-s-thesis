@@ -29,6 +29,12 @@ real_images = {
     "face_otsu": "data/real/face_binary_otsu.png",
 }
 
+
+ideal_images = {
+    "ideal_circle": "data/ideal/circle.png",
+}
+
+
 noise_functions = {
 
     # noise
@@ -60,7 +66,8 @@ csv_path = "results/descriptors.csv"
 
 init_csv(csv_path)
 
-# for shape_name, path in real_images.items():# TODO sprawdzic czy to dziala
+# for shape_name, path in real_images.items():
+# for shape_name, path in ideal_images.items():
 
 #     img = load_image(path)
 #     img = to_binary(img)
