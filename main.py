@@ -86,7 +86,9 @@ for shape_name, shape_func in shape_generators.items():
     print(A)  # TODO dodac repetition
 
         
-    feret = feret_diameter(contour)
+    feret_max = feret_max(contour)    
+    feret_min = feret_min(contour)    
+    feret_mean = feret_mean(contour)
     mal = malinowska(A, P)
     
     bbox = bounding_box(img)
@@ -145,7 +147,9 @@ for shape_name, shape_func in shape_generators.items():
         comp,
         ecc,
         theta,
-        feret,
+        feret_max,
+        feret_min,
+        feret_mean,
         mal,
         mom["M11"],
         mu["mu11"],
@@ -202,7 +206,9 @@ for shape_name, shape_func in shape_generators.items():
         A = area(noisy_img)
         P = perimeter(contour)
         
-        feret = feret_diameter(contour)
+        feret_max = feret_max(contour)    
+        feret_min = feret_min(contour)    
+        feret_mean = feret_mean(contour)
         mal = malinowska(A, P)
 
         bbox = bounding_box(noisy_img)
@@ -225,7 +231,9 @@ for shape_name, shape_func in shape_generators.items():
                 comp,
                 ecc,
                 theta,
-                feret,
+                feret_max,
+                feret_min,
+                feret_mean,
                 mal,
                 mom["M11"],
                 mu["mu11"],

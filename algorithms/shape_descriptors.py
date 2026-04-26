@@ -114,7 +114,7 @@ def eccentricity(mu20, mu02, mu11):
 
     return float(ecc)
 
-def feret_diameter(contour):
+def feret_max(contour):
     """
     Maksymalna odległość między punktami konturu
     """
@@ -137,6 +137,54 @@ def feret_diameter(contour):
                 max_dist = dist
 
     return float(np.sqrt(max_dist))
+
+def feret_min(contour):
+    """
+    Minimalna odległość między punktami konturu
+    """
+
+    ys, xs = np.nonzero(contour)
+    points = np.column_stack((xs, ys))
+
+    min_dist = float("inf")
+
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+
+            dx = points[i][0] - points[j][0]
+            dy = points[i][1] - points[j][1]
+
+            dist = dx * dx + dy * dy
+
+            if 0 < dist < min_dist:  # pomijamy 0 (ten sam punkt)
+                min_dist = dist
+
+    return float(np.sqrt(min_dist)) if min_dist != float("inf") else 0.0
+
+
+def feret_mean(contour):
+    """
+    Średnia odległość między wszystkimi parami punktów konturu
+    """
+
+    ys, xs = np.nonzero(contour)
+    points = np.column_stack((xs, ys))
+
+    total_dist = 0.0
+    count = 0
+
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+
+            dx = points[i][0] - points[j][0]
+            dy = points[i][1] - points[j][1]
+
+            dist = np.sqrt(dx * dx + dy * dy)
+
+            total_dist += dist
+            count += 1
+
+    return total_dist / count if count > 0 else 0.0
             
 def malinowska(area, perimeter):
     """
