@@ -54,8 +54,19 @@ ideal_images = {
 noise_functions = {
 
     # noise
-    "salt_pepper": lambda img: add_salt_and_pepper_noise(img, 0.20, 42), # TODO stopnie
-    "gaussian": lambda img: add_gaussian_noise(img, 0.30, 42), # TODO sigma
+    "salt_pepper_01": lambda img: add_salt_and_pepper_noise(img, 0.01, 42),
+    "salt_pepper_02": lambda img: add_salt_and_pepper_noise(img, 0.02, 42),
+    "salt_pepper_05": lambda img: add_salt_and_pepper_noise(img, 0.05, 42),
+    "salt_pepper_10": lambda img: add_salt_and_pepper_noise(img, 0.10, 42),
+    "salt_pepper_15": lambda img: add_salt_and_pepper_noise(img, 0.15, 42),
+    "salt_pepper_20": lambda img: add_salt_and_pepper_noise(img, 0.20, 42),
+    "salt_pepper_30": lambda img: add_salt_and_pepper_noise(img, 0.30, 42),
+    "gaussian_05": lambda img: add_gaussian_noise(img, 0.05, 42), 
+    "gaussian_10": lambda img: add_gaussian_noise(img, 0.10, 42),
+    "gaussian_15": lambda img: add_gaussian_noise(img, 0.15, 42),
+    "gaussian_20": lambda img: add_gaussian_noise(img, 0.20, 42),
+    "gaussian_30": lambda img: add_gaussian_noise(img, 0.30, 42),
+    "gaussian_50": lambda img: add_gaussian_noise(img, 0.50, 42),
 
     # blur
     "blur": lambda img: add_blur(img),
@@ -82,20 +93,20 @@ csv_path = "results/descriptors.csv"
 
 init_csv(csv_path)
 
-# for shape_name, path in real_images.items():
+for shape_name, path in real_images.items():
 # for shape_name, path in ideal_images.items():
 
-#     img = load_image(path)
-#     img = to_binary(img)
+    img = load_image(path)
+    img = to_binary(img)
 
-for shape_name, shape_func in shape_generators.items():
+# for shape_name, shape_func in shape_generators.items():
 
-    img, meta = shape_func()
+    # img, meta = shape_func()
     # bierzemy najwiekszy 
     img = get_largest_component(img)
 
     save_image(img, f"results/images/{shape_name}_clean.png")
-    contour = extract_contour(img)
+    contour = extract_contour_4_8(img, 8)
     save_image(contour, f"results/images/{shape_name}_contour.png")
     A = area(img)
     P = perimeter(contour)
@@ -198,7 +209,7 @@ for shape_name, shape_func in shape_generators.items():
             f"results/images/{shape_name}_{noise_name}_full.png"
         )
         
-        contour = extract_contour(noisy_img)
+        contour = extract_contour_4_8(noisy_img, 8)
 
         mom = raw_moments(noisy_img)
         cx, cy = centroid(mom)
@@ -282,7 +293,7 @@ for shape_name, shape_func in shape_generators.items():
             f"results/images/{shape_name}_{noise_name}_largest.png"
         )
         
-        contour = extract_contour(largest_noisy)
+        contour = extract_contour_4_8(largest_noisy, 8)
 
         mom = raw_moments(largest_noisy)
         cx, cy = centroid(mom)
