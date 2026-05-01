@@ -12,6 +12,22 @@ from algorithms.image_moments import *
 from utils.results_writer import *
 from utils.image_loader import *
 
+def get_largest_component(binary_img, connectivity=8):
+    labels, num, components = connected_components(binary_img, connectivity)
+
+    if num == 0:
+        return None
+
+    # znajdź największy komponent
+    largest_label = max(components, key=lambda k: len(components[k]))
+
+    largest_img = np.zeros_like(binary_img)
+
+    for (y, x) in components[largest_label]:
+        largest_img[y, x] = 1
+
+    return largest_img
+
 gen = ShapeGenerator(seed=42)
 
 shape_generators = {
@@ -75,20 +91,22 @@ init_csv(csv_path)
 for shape_name, shape_func in shape_generators.items():
 
     img, meta = shape_func()
+    # bierzemy najwiekszy 
+    img = get_largest_component(img)
 
     save_image(img, f"results/images/{shape_name}_clean.png")
     contour = extract_contour(img)
     save_image(contour, f"results/images/{shape_name}_contour.png")
     A = area(img)
     P = perimeter(contour)
-    print(np.max(img))  # TODO dodac repetition
-    print(img.shape)  # TODO dodac repetition
-    print(A)  # TODO dodac repetition
+    # print(np.max(img))  # TODO dodac repetition
+    # print(img.shape)  # TODO dodac repetition
+    # print(A)  # TODO dodac repetition
 
         
-    feret_max = feret_max(contour)    
-    feret_min = feret_min(contour)    
-    feret_mean = feret_mean(contour)
+    fer_max = feret_max(contour)    
+    fer_min = feret_min(contour)    
+    fer_mean = feret_mean(contour)
     mal = malinowska(A, P)
     
     bbox = bounding_box(img)
@@ -140,6 +158,7 @@ for shape_name, shape_func in shape_generators.items():
     [
         shape_name,
         "clean",
+        "largest",
         A,
         P,
         ratio,
@@ -147,9 +166,9 @@ for shape_name, shape_func in shape_generators.items():
         comp,
         ecc,
         theta,
-        feret_max,
-        feret_min,
-        feret_mean,
+        fer_max,
+        fer_min,
+        fer_mean,
         mal,
         mom["M11"],
         mu["mu11"],
@@ -157,13 +176,13 @@ for shape_name, shape_func in shape_generators.items():
     ]
 )
     
-    labels4, n4, _components4 = connected_components(img, connectivity=4) # TODO ma sens tylko jesli mam dwa obiekty...
+    # labels4, n4, _components4 = connected_components(img, connectivity=4) # TODO ma sens tylko jesli mam dwa obiekty...
     # labels8, n8, _components8 = connected_components(img, connectivity=8)
     
-    save_labels(
-        labels4,
-        f"results/images/{shape_name}_labels4.png"
-    )
+    # save_labels(
+    #     labels4,
+    #     f"results/images/{shape_name}_labels4.png"
+    # )
 
     # save_labels(
     #     labels8,
@@ -176,7 +195,7 @@ for shape_name, shape_func in shape_generators.items():
 
         save_image(
             noisy_img,
-            f"results/images/{shape_name}_{noise_name}.png"
+            f"results/images/{shape_name}_{noise_name}_full.png"
         )
         
         contour = extract_contour(noisy_img)
@@ -206,9 +225,9 @@ for shape_name, shape_func in shape_generators.items():
         A = area(noisy_img)
         P = perimeter(contour)
         
-        feret_max = feret_max(contour)    
-        feret_min = feret_min(contour)    
-        feret_mean = feret_mean(contour)
+        fer_max = feret_max(contour)    
+        fer_min = feret_min(contour)    
+        fer_mean = feret_mean(contour)
         mal = malinowska(A, P)
 
         bbox = bounding_box(noisy_img)
@@ -217,13 +236,14 @@ for shape_name, shape_func in shape_generators.items():
         circ = circularity(A, P)
         comp = compactness(A, P)
         
-        labels4_noisy, n4_noisy, _components4 = connected_components(noisy_img, connectivity=4)
-        labels8_noisy, n8_noisy, _components8 = connected_components(noisy_img, connectivity=8)
+        # labels4_noisy, n4_noisy, _components4 = connected_components(noisy_img, connectivity=4)
+        # labels8_noisy, n8_noisy, _components8 = connected_components(noisy_img, connectivity=8)
         append_result(
             csv_path,
             [
                 shape_name,
                 noise_name,
+                "full",
                 A,
                 P,
                 ratio,
@@ -231,19 +251,19 @@ for shape_name, shape_func in shape_generators.items():
                 comp,
                 ecc,
                 theta,
-                feret_max,
-                feret_min,
-                feret_mean,
+                fer_max,
+                fer_min,
+                fer_mean,
                 mal,
                 mom["M11"],
                 mu["mu11"],
                 eta["eta11"],
             ]
         )
-        save_labels(
-            labels4_noisy,
-            f"results/images/{shape_name}_{noise_name}_labels4_noisy.png"
-        )
+        # save_labels(
+        #     labels4_noisy,
+        #     f"results/images/{shape_name}_{noise_name}_labels4_noisy.png"
+        # )
 
         # save_labels(
         #     labels8_noisy,
@@ -251,5 +271,79 @@ for shape_name, shape_func in shape_generators.items():
         # )
         # if (n4_noisy != 1 or n8_noisy):
         #     print(f"Wiecej niz jedna figura: {shape_name}_{noise_name}")
+        
+        largest_noisy = get_largest_component(noisy_img)
+
+        if largest_noisy is None:
+            continue
+
+        save_image(
+            largest_noisy,
+            f"results/images/{shape_name}_{noise_name}_largest.png"
+        )
+        
+        contour = extract_contour(largest_noisy)
+
+        mom = raw_moments(largest_noisy)
+        cx, cy = centroid(mom)
+
+        if cx is None:
+            continue
+
+        mu = central_moments(largest_noisy, cx, cy)
+        
+        eta = normalized_central_moments(mu, mom["M00"])
+
+        theta = orientation(
+            mu["mu20"],
+            mu["mu02"],
+            mu["mu11"]
+        )
+
+        ecc = eccentricity(
+            mu["mu20"],
+            mu["mu02"],
+            mu["mu11"]
+        )
+
+        A = area(largest_noisy)
+        P = perimeter(contour)
+        
+        fer_max = feret_max(contour)    
+        fer_min = feret_min(contour)    
+        fer_mean = feret_mean(contour)
+        mal = malinowska(A, P)
+
+        bbox = bounding_box(largest_noisy)
+
+        ratio = aspect_ratio(bbox["width"], bbox["height"])
+        circ = circularity(A, P)
+        comp = compactness(A, P)
+        
+        # labels4_noisy, n4_noisy, _components4 = connected_components(largest_noisy, connectivity=4)
+        # labels8_noisy, n8_noisy, _components8 = connected_components(largest_noisy, connectivity=8)
+        append_result(
+            csv_path,
+            [
+                shape_name,
+                noise_name,
+                "largest",
+                A,
+                P,
+                ratio,
+                circ,
+                comp,
+                ecc,
+                theta,
+                fer_max,
+                fer_min,
+                fer_mean,
+                mal,
+                mom["M11"],
+                mu["mu11"],
+                eta["eta11"],
+            ]
+        )
 
 print("Zapisano wszystkie obrazy.")  # TODO dodac repetition
+

@@ -13,6 +13,7 @@ def init_csv(path):
         writer.writerow([
             "shape",
             "noise",
+            "elements",
             "area",
             "perimeter",
             "aspect_ratio",
@@ -28,17 +29,6 @@ def init_csv(path):
             "centralny11",
             "znormalizowany11"
         ])
-        # shape_name,
-        # "clean",
-        # A,
-        # P,
-        # ratio,
-        # circ,
-        # comp,
-        # ecc,
-        # theta,
-        # feret,
-        # mal
 
 def append_result(path, row):
 
